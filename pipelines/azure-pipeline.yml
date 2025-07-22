@@ -1,0 +1,57 @@
+trigger:
+  - none
+parameters:
+  - name: environment
+    displayName: "Select Environment"
+    type: string
+    default: "dev"
+    values:
+      - dev
+      - prd
+
+variables:
+  - template: ${{ parameters.environment }}-config.yml
+
+stages:
+  - stage: DeployInfrastructure
+    displayName: "Deploy Infrastructure"
+    jobs:
+      - job: Deploy
+        displayName: "Deploy Resources"
+        pool:
+          vmImage: "windows-latest"
+        steps:
+          - task: AzureKeyVault@2
+            displayName: "Fetch Secrets from Key Vault"
+            inputs:
+              azureSubscription: "${{ variables.azureSubscription }}"
+              KeyVaultName: "$(keyVaultName)"
+              SecretsFilter: "sqlmi-admin-password"
+              RunAsPreJob: false
+
+          - task: AzurePowerShell@5
+            displayName: "Deploy Bicep Template"
+            inputs:
+              azureSubscription: "${{ variables.azureSubscription }}"
+              ScriptType: "InlineScript"
+              Inline: |
+                Set-AzContext -SubscriptionId "${{ variables.subscriptionID }}"
+                Write-Host "Starting Deployment..."
+
+                New-AzResourceGroupDeployment `
+                  -ResourceGroupName "$(resourceGroupName)" `
+                  -TemplateFile "main.bicep" `
+                  -environment "$(environment)" `
+                  -location "$(location)" `
+                  -vnetAddressSpace "$(vnetAddressSpace)" `
+                  -subnetAddressSpaceSQLMI "$(subnetAddressSpaceSQLMI)" `
+                  -subnetAddressSpacePrivateEndpoint "$(subnetAddressSpacePrivateEndpoint)" `
+                  -administratorPassword "$(sqlmi-admin-password)" `
+                  -subnetId "$(subnetId)" `
+                  -privateEndpointSubnetId "$(privateEndpointSubnetId)" `
+                  -dnsZoneSqlMIId "$(dnsZoneSqlMIId)" `
+                  -dnsZoneStorageId "$(dnsZoneStorageId)"
+
+                Write-Host "Deployment Completed!"
+
+              azurePowerShellVersion: "LatestVersion"
