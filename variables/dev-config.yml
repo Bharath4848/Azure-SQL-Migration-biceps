@@ -1,18 +1,18 @@
 variables:
-  subscriptionID: 40124cc9-dbb8-4bcc-a9b9-ebl69ee5271f
-  tenantId: 'ddf5b6de-228d-4c15-949a-b7a6d0e15f36'
+  subscriptionID: 'your subscription ID'
+  tenantId: 'Your Tenet ID'
   environment: 'dev'
-  azureSubscription: 'nza-dbc-dev-sub001-sp001'
-  resourceGroupName: dbc-dev-app-rg001
-  location: "West Europe"
-  keyVaultName: "nza-hub-prod-ew-pkv01"
-  vnetAddressSpace: 10.100.33.0/24'
-  subnetAddressSpaceSQLMI: 10.100.34.0/26'
-  subnetAddressSpacePrivateEndpoint: 10.100.35.0/26
-  sqlmiName: dbc-dev-app-SQIM1001
-  adminübjectId: 65856177-c37e-4f3f-a221-lac3d584e3b5
-  storageAccountName: dbcdevstorage
-  subnetid: /subscriptions/40124cc9-dbb8-4bcc-a9b9-ebl69ee5271f/resourceGroups/dbc-dev-app-rg001/providers/Microsoft.Network/virtualNetworks/dbc-dev-app-Vnet/subneta/dbc-dev-app-SubNet
-  privateEndpointSubnetId: /subscriptions/40124cc9-dbb8-4bcc-a9b9-ebl69ee5271f/resourceGroups/dbc-dev-app-rg001/providers/Microsoft.Network/virtualNetworks/dbc-dev-app-Vnet/subnets/dbo-dev-app-PrivateEndpoint-Subnet
-  dnsZoneSqIMIId: /subscriptions/401240c9-dbb6-4bcc-a9b9-eb169ee5271f/resourceGroups/dbc-dev-app-rg001/providers/Microsoft.Network/privateDnsZones/privatelink.database.windows.net
-  dnsZoneStorageId: /subscriptions/40124cc9-dbb8-4bcc-a9b9-ebl69ee5271f/resourceGroups/dbc-dev-app-rg001/providers/Microsoft.Network/privateinsZones/privatelink.blob.core.windows.net
+  azureSubscription: 'Your service Connection Name'
+  resourceGroupName: 'Your RG Name'
+  location: 'West Europe'
+  keyVaultName: 'Your KV name'
+  vnetAddressSpace: '10.100.33.0/24'
+  subnetAddressSpaceSQLMI: '10.100.34.0/26'
+  subnetAddressSpacePrivateEndpoint: '10.100.35.0/26'
+  sqlmiName: 'Your SQL MI Name'
+  adminObjectId: 'Your AAD Admin Object ID'
+  storageAccountName: 'Your Storage account Name'
+  subnetid: /subscriptions/xxxxxxxxxxxxxxxx/resourceGroups/RG name/providers/Microsoft.Network/virtualNetworks/Your Vnet Name/subnets/your subnet name 
+  privateEndpointSubnetId: /subscriptions/xxxxxxxxxxxxxxxx/resourceGroups/RG name/providers/Microsoft.Network/virtualNetworks/Your Vnet Name/subnets/your private endpoint subnet name
+  dnsZoneSqIMIId: /subscriptions/xxxxxxxxxxxxxxxx/resourceGroups/RG Name/providers/Microsoft.Network/privateDnsZones/privatelink.database.windows.net
+  dnsZoneStorageId: /subscriptions/xxxxxxxxxxxxxxxx/resourceGroups/RG Name/providers/Microsoft.Network/privateinsZones/privatelink.blob.core.windows.net
