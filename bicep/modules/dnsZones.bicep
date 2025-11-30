@@ -1,28 +1,26 @@
 param environment string
-param resourceGroupName string
-param location string
 
-var vnetId = resourceId('Microsoft.Network/virtualNetworks', 'dbc-${environment}-app-vnet')
-
+var vnetId = resourceId('Microsoft.Network/virtualNetworks', 'dbc-${environment}-app-Vnet')
 var dnsZoneSqlMI = 'privatelink.database.windows.net'
 var dnsZoneStorage = 'privatelink.blob.core.windows.net'
 
 // Create Private DNS Zone for SQL Managed Instance
-resource privateDnsZoneSqlMI 'Microsoft.Network/privateDnsZones@2023-01-01' = {
+resource privateDnsZoneSqlMI 'Microsoft.Network/privateDnsZones@2024-06-01' = {
   name: dnsZoneSqlMI
-  location: 'Global'
+  location: 'global'
 }
 
 // Create Private DNS Zone for Storage Account
-resource privateDnsZoneStorage 'Microsoft.Network/privateDnsZones@2023-01-01' = {
+resource privateDnsZoneStorage 'Microsoft.Network/privateDnsZones@2024-06-01' = {
   name: dnsZoneStorage
-  location: 'Global'
+  location: 'global'
 }
 
 // Link SQL MI DNS Zone to VNet
-resource privateDnsZoneVnetLinkSqlMI 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2023-01-01' = {
+resource privateDnsZoneVnetLinkSqlMI 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2024-06-01' = {
   name: '${environment}-sqlmi-dns-link'
   parent: privateDnsZoneSqlMI
+  location: 'global'
   properties: {
     virtualNetwork: {
       id: vnetId
@@ -32,9 +30,10 @@ resource privateDnsZoneVnetLinkSqlMI 'Microsoft.Network/privateDnsZones/virtualN
 }
 
 // Link Storage DNS Zone to VNet
-resource privateDnsZoneVnetLinkStorage 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2023-01-01' = {
+resource privateDnsZoneVnetLinkStorage 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2024-06-01' = {
   name: '${environment}-storage-dns-link'
   parent: privateDnsZoneStorage
+  location: 'global'
   properties: {
     virtualNetwork: {
       id: vnetId
