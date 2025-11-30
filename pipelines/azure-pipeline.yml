@@ -10,7 +10,7 @@ parameters:
       - prd
 
 variables:
-  - template: ${{ parameters.environment }}-config.yml
+  - template: ../variables/${{ parameters.environment }}-config.yml
 
 stages:
   - stage: DeployInfrastructure
@@ -35,23 +35,38 @@ stages:
               azureSubscription: "${{ variables.azureSubscription }}"
               ScriptType: "InlineScript"
               Inline: |
-                Set-AzContext -SubscriptionId "${{ variables.subscriptionID }}"
-                Write-Host "Starting Deployment..."
+                try {
+                    # Set the subscription context
+                    Set-AzContext -SubscriptionId "${{ variables.subscriptionID }}"
 
-                New-AzResourceGroupDeployment `
-                  -ResourceGroupName "$(resourceGroupName)" `
-                  -TemplateFile "main.bicep" `
-                  -environment "$(environment)" `
-                  -location "$(location)" `
-                  -vnetAddressSpace "$(vnetAddressSpace)" `
-                  -subnetAddressSpaceSQLMI "$(subnetAddressSpaceSQLMI)" `
-                  -subnetAddressSpacePrivateEndpoint "$(subnetAddressSpacePrivateEndpoint)" `
-                  -administratorPassword "$(sqlmi-admin-password)" `
-                  -subnetId "$(subnetId)" `
-                  -privateEndpointSubnetId "$(privateEndpointSubnetId)" `
-                  -dnsZoneSqlMIId "$(dnsZoneSqlMIId)" `
-                  -dnsZoneStorageId "$(dnsZoneStorageId)"
+                    Write-Host "Starting Deployment..."
 
-                Write-Host "Deployment Completed!"
+                    # Convert Key Vault password to SecureString
+                    $adminPassword = ConvertTo-SecureString "$(sqlmi-admin-password)" -AsPlainText -Force
 
+                    # Deploy Bicep template
+                    $deployment = New-AzResourceGroupDeployment `
+                      -ResourceGroupName "$(resourceGroupName)" `
+                      -TemplateFile "bicep/main.bicep" `
+                      -environment "$(environment)" `
+                      -location "$(location)" `
+                      -vnetAddressSpace "$(vnetAddressSpace)" `
+                      -subnetAddressSpaceSQLMI "$(subnetAddressSpaceSQLMI)" `
+                      -subnetAddressSpacePrivateEndpoint "$(subnetAddressSpacePrivateEndpoint)" `
+                      -administratorPassword $adminPassword `
+                      -adminObjectId "$(adminObjectId)" `
+                      -tenantId "$(tenantId)" `
+                      -Verbose
+
+                    Write-Host "Deployment Completed Successfully!"
+                }
+                catch {
+                    Write-Host "Deployment Failed!"
+                    Write-Host "====================================="
+                    Write-Host "Error Details:"
+                    $_.Exception | Format-List -Force
+                    Write-Host "====================================="
+                    throw $_
+                }
               azurePowerShellVersion: "LatestVersion"
+

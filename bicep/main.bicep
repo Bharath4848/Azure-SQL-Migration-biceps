@@ -1,32 +1,23 @@
-param environment string
-param resourceGroupName string
-param location string
-param administratorLogin string
-@secure()
-param administratorPassword string
-param collation string
-param cores int
-param storageSizeGB int
-param timeZoneId string
-param tlsVersion string
-param publicEndpointEnabled bool
-param adminObjectId string
-param tenantId string
-param enableDefender bool
-param vnetAddressSpace string
-param subnetAddressSpaceSQLMI string
-param subnetAddressSpacePrivateEndpoint string
-param privateEndpointSubnetId string
-param sqlmiName string
-param storageAccountName string
-param dnsZoneSqlMIId string
-param dnsZoneStorageId string
+targetScope = 'resourceGroup'
 
-module vnet './Vnet.bicep' = {
+param environment string
+param location string
+
+@secure()
+param administratorPassword string          // from Key Vault
+
+param adminObjectId string                  // from config file
+param tenantId string                       // from config file
+
+param vnetAddressSpace string               // from config file
+param subnetAddressSpaceSQLMI string        // from config file
+param subnetAddressSpacePrivateEndpoint string
+
+// Deploy VNet & Subnets
+module vnet './modules/Vnet.bicep' = {
   name: 'vnetDeployment'
   params: {
     environment: environment
-    resourceGroupName: resourceGroupName
     location: location
     vnetAddressSpace: vnetAddressSpace
     subnetAddressSpaceSQLMI: subnetAddressSpaceSQLMI
@@ -34,55 +25,64 @@ module vnet './Vnet.bicep' = {
   }
 }
 
-module dnsZones './dnsZones.bicep' = {
+// DNS Zones
+module dnsZones './modules/dnsZones.bicep' = {
   name: 'dnsZonesDeployment'
   params: {
     environment: environment
-    resourceGroupName: resourceGroupName
-    location: location
   }
+  dependsOn: [
+    vnet
+  ]
 }
 
-module sqlmi './sqlmi.bicep' = {
+// SQL Managed Instance
+module sqlmi './modules/sqlmi.bicep' = {
   name: 'sqlmiDeployment'
   params: {
     environment: environment
     location: location
-    resourceGroupName: resourceGroupName
-    administratorLogin: administratorLogin
+    // Provided by pipeline
     administratorPassword: administratorPassword
-    collation: collation
-    cores: cores
-    storageSizeGB: storageSizeGB
-    timeZoneId: timeZoneId
-    tlsVersion: tlsVersion
-    publicEndpointEnabled: publicEndpointEnabled
     adminObjectId: adminObjectId
     tenantId: tenantId
+
+    // Subnet from VNet module output
     subnetId: vnet.outputs.sqlmiSubnetId
-    enableDefender: enableDefender
   }
+  dependsOn: [
+    vnet
+    dnsZones
+  ]
 }
 
-module storage './storageAccount.bicep' = {
+// Storage Account
+module storage './modules/storageAccount.bicep' = {
   name: 'storageDeployment'
   params: {
     environment: environment
-    resourceGroupName: resourceGroupName
     location: location
   }
+  dependsOn: [
+    dnsZones
+  ]
 }
 
-module privateEndpoints './privateEndpoints.bicep' = {
+// Private Endpoints + DNS Zone Linking
+module privateEndpoints './modules/privateEndpoints.bicep' = {
   name: 'privateEndpointsDeployment'
   params: {
-    environment: environment
-    resourceGroupName: resourceGroupName
     location: location
+
     privateEndpointSubnetId: vnet.outputs.privateEndpointSubnetId
     sqlmiName: sqlmi.outputs.sqlmiName
     storageAccountName: storage.outputs.storageAccountName
     dnsZoneSqlMIId: dnsZones.outputs.sqlmiDnsZoneId
     dnsZoneStorageId: dnsZones.outputs.storageDnsZoneId
   }
+  dependsOn: [
+    sqlmi
+    storage
+    dnsZones
+  ]
 }

@@ -1,25 +1,24 @@
 param environment string
-param location string = 'westeurope'
-param resourceGroupName string
+param location string = 'eastasia'
 param administratorLogin string = 'sqlmiadmin'
 @secure()
 param administratorPassword string
 param collation string = 'Latin1_General_CI_AS'
 param cores int = 16
 param storageSizeGB int = 16384
-param timeZoneId string = 'UTC+1'
+param timeZoneId string = 'UTC'
 param tlsVersion string = '1.2'
 param publicEndpointEnabled bool = false
 param adminObjectId string // Microsoft Entra Admin Object ID
 param tenantId string // Azure AD Tenant ID
-param subnetId string // SQL Managed Instance Subnet ID
+param subnetId string // SQL Managed Instance Subnet ID (existing)
 param enableDefender bool = true
 
-var managedInstanceName = 'dbc-${environment}-app-SQLMI001'
-var vnetName = 'dbc-${environment}-app-Vnet'
-var subnetName = 'dbc-${environment}-app-SubNet'
+var managedInstanceName = 'dbc-${environment}-app-sqlmi001'
 
+// --------------------------
 // Deploy SQL Managed Instance
+// --------------------------
 resource sqlManagedInstance 'Microsoft.Sql/managedInstances@2021-11-01' = {
   name: managedInstanceName
   location: location
@@ -42,13 +41,17 @@ resource sqlManagedInstance 'Microsoft.Sql/managedInstances@2021-11-01' = {
     name: 'GP_PremiumSeries'
     tier: 'GeneralPurpose'
     family: 'PremiumSeries'
+    capacity: cores
+    hardwareGeneration: 'Gen5'
   }
   identity: {
     type: 'SystemAssigned'
   }
-} 
+}
 
+// --------------------------
 // Assign Microsoft Entra ID Admin
+// --------------------------
 resource sqlEntraAdmin 'Microsoft.Sql/managedInstances/administrators@2021-11-01' = {
   parent: sqlManagedInstance
   name: 'ActiveDirectory'
@@ -60,17 +63,20 @@ resource sqlEntraAdmin 'Microsoft.Sql/managedInstances/administrators@2021-11-01
   }
 }
 
+// --------------------------
 // Enable Defender for SQL
+// --------------------------
 resource sqlMiVulnerabilityAssessment 'Microsoft.Sql/managedInstances/securityAlertPolicies@2021-11-01' = if (enableDefender) {
   parent: sqlManagedInstance
   name: 'Default'
   properties: {
-    state: 'Enabled' // Enables Defender for this specific SQL Managed Instance
+    state: 'Enabled'
   }
 }
-  
 
-// Create NSG for SQL MI (Allow ports 11000-11999)
+// --------------------------
+// Create NSG for SQL MI (Ports 11000-11999)
+// --------------------------
 resource sqlMiNsg 'Microsoft.Network/networkSecurityGroups@2021-02-01' = {
   name: '${managedInstanceName}-nsg'
   location: location
@@ -84,7 +90,7 @@ resource sqlMiNsg 'Microsoft.Network/networkSecurityGroups@2021-02-01' = {
           access: 'Allow'
           protocol: 'Tcp'
           sourcePortRange: '*'
-          destinationPortRanges: [ '11000-11999' ]
+          destinationPortRanges: ['11000-11999']
           sourceAddressPrefix: 'VirtualNetwork'
           destinationAddressPrefix: '*'
         }
@@ -93,23 +99,8 @@ resource sqlMiNsg 'Microsoft.Network/networkSecurityGroups@2021-02-01' = {
   }
 }
 
-// Fetch the existing Virtual Network
-resource existingVnet 'Microsoft.Network/virtualNetworks@2021-02-01' existing = {
-  name: vnetName
-  scope: resourceGroup()
-}
-
-// Associate NSG with the SQL MI Subnet
-resource sqlMiSubnetNsgAssociation 'Microsoft.Network/virtualNetworks/subnets@2021-02-01' = {
-  name: subnetName
-  parent: existingVnet
-  properties: {
-    networkSecurityGroup: {
-      id: sqlMiNsg.id
-    }
-  }
-}
-
-// Output the storage account name and ID
+// --------------------------
+// Outputs
+// --------------------------
 output sqlmiName string = sqlManagedInstance.name
 output sqlmiId string = sqlManagedInstance.id

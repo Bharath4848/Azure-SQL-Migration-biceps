@@ -1,5 +1,3 @@
-param environment string
-param resourceGroupName string
 param location string
 param privateEndpointSubnetId string // Subnet for Private Endpoints
 param sqlmiName string
