@@ -1,5 +1,4 @@
 param environment string
-param resourceGroupName string
 param location string
 param vnetAddressSpace string
 param subnetAddressSpaceSQLMI string
