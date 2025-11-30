@@ -9,10 +9,4 @@ variables:
   vnetAddressSpace: '10.100.33.0/24'
   subnetAddressSpaceSQLMI: '10.100.34.0/26'
   subnetAddressSpacePrivateEndpoint: '10.100.35.0/26'
-  sqlmiName: 'Your SQL MI Name'
   adminObjectId: 'Your AAD Admin Object ID'
-  storageAccountName: 'Your Storage account Name'
-  subnetid: /subscriptions/xxxxxxxxxxxxxxxx/resourceGroups/RG name/providers/Microsoft.Network/virtualNetworks/Your Vnet Name/subnets/your subnet name 
-  privateEndpointSubnetId: /subscriptions/xxxxxxxxxxxxxxxx/resourceGroups/RG name/providers/Microsoft.Network/virtualNetworks/Your Vnet Name/subnets/your private endpoint subnet name
-  dnsZoneSqIMIId: /subscriptions/xxxxxxxxxxxxxxxx/resourceGroups/RG Name/providers/Microsoft.Network/privateDnsZones/privatelink.database.windows.net
-  dnsZoneStorageId: /subscriptions/xxxxxxxxxxxxxxxx/resourceGroups/RG Name/providers/Microsoft.Network/privateinsZones/privatelink.blob.core.windows.net
