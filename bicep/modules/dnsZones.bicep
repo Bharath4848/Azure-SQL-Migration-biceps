@@ -1,6 +1,6 @@
 param environment string
+param vnetId string
 
-var vnetId = resourceId('Microsoft.Network/virtualNetworks', 'dbc-${environment}-app-Vnet')
 var dnsZoneSqlMI = 'privatelink.database.windows.net'
 var dnsZoneStorage = 'privatelink.blob.core.windows.net'
 
