@@ -75,31 +75,6 @@ resource sqlMiVulnerabilityAssessment 'Microsoft.Sql/managedInstances/securityAl
 }
 
 // --------------------------
-// Create NSG for SQL MI (Ports 11000-11999)
-// --------------------------
-resource sqlMiNsg 'Microsoft.Network/networkSecurityGroups@2021-02-01' = {
-  name: '${managedInstanceName}-nsg'
-  location: location
-  properties: {
-    securityRules: [
-      {
-        name: 'Allow_SQL_MI_Redirect'
-        properties: {
-          priority: 100
-          direction: 'Inbound'
-          access: 'Allow'
-          protocol: 'Tcp'
-          sourcePortRange: '*'
-          destinationPortRanges: ['11000-11999']
-          sourceAddressPrefix: 'VirtualNetwork'
-          destinationAddressPrefix: '*'
-        }
-      }
-    ]
-  }
-}
-
-// --------------------------
 // Outputs
 // --------------------------
 output sqlmiName string = sqlManagedInstance.name
