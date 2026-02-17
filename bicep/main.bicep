@@ -30,6 +30,7 @@ module dnsZones './modules/dnsZones.bicep' = {
   name: 'dnsZonesDeployment'
   params: {
     environment: environment
+    vnetId: vnet.outputs.vnetId
   }
   dependsOn: [
     vnet
