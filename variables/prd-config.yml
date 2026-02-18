@@ -10,3 +10,7 @@ variables:
   subnetAddressSpaceSQLMI: '10.100.34.0/26'
   subnetAddressSpacePrivateEndpoint: '10.100.35.0/26'
   adminObjectId: 'Your AAD Admin Object ID'
+  skuName: 'GP_PremiumSeries'
+  skuTier: 'GeneralPurpose'
+  skuFamily: 'PremiumSeries'
+  skuCapacity: 32

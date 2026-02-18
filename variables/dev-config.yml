@@ -10,3 +10,7 @@ variables:
   subnetAddressSpaceSQLMI: '10.0.0.0/24'
   subnetAddressSpacePrivateEndpoint: '10.0.1.0/24'
   adminObjectId: 'Your AAD admin object ID'
+  skuName: 'GP_Gen5'
+  skuTier: 'GeneralPurpose'
+  skuFamily: 'Gen5'
+  skuCapacity: 16

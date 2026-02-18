@@ -12,6 +12,11 @@ param tenantId string                       // from config file
 param vnetAddressSpace string               // from config file
 param subnetAddressSpaceSQLMI string        // from config file
 param subnetAddressSpacePrivateEndpoint string
+param skuName string
+param skuTier string
+param skuFamily string
+param skuCapacity int
+
 
 // Deploy VNet & Subnets
 module vnet './modules/Vnet.bicep' = {
@@ -47,6 +52,10 @@ module sqlmi './modules/sqlmi.bicep' = {
     administratorPassword: administratorPassword
     adminObjectId: adminObjectId
     tenantId: tenantId
+    skuName: skuName
+    skuTier: skuTier
+    skuFamily: skuFamily
+    skuCapacity: skuCapacity
 
     // Subnet from VNet module output
     subnetId: vnet.outputs.sqlmiSubnetId
