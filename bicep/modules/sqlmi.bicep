@@ -4,7 +4,6 @@ param administratorLogin string = 'sqlmiadmin'
 @secure()
 param administratorPassword string
 param collation string = 'Latin1_General_CI_AS'
-param cores int = 16
 param storageSizeGB int = 16384
 param timeZoneId string = 'UTC'
 param tlsVersion string = '1.2'
@@ -13,6 +12,11 @@ param adminObjectId string // Microsoft Entra Admin Object ID
 param tenantId string // Azure AD Tenant ID
 param subnetId string // SQL Managed Instance Subnet ID (existing)
 param enableDefender bool = true
+skuName: skuName
+skuTier: skuTier
+skuFamily: skuFamily
+skuCapacity: skuCapacity
+
 
 var managedInstanceName = 'dbc-${environment}-app-sqlmi001'
 
@@ -26,7 +30,7 @@ resource sqlManagedInstance 'Microsoft.Sql/managedInstances@2021-11-01' = {
     administratorLogin: administratorLogin
     administratorLoginPassword: administratorPassword
     collation: collation
-    vCores: cores
+    vCores: skuCapacity
     storageSizeInGB: storageSizeGB
     timezoneId: timeZoneId
     minimalTlsVersion: tlsVersion
@@ -38,11 +42,10 @@ resource sqlManagedInstance 'Microsoft.Sql/managedInstances@2021-11-01' = {
     requestedBackupStorageRedundancy: 'Local'
   }
   sku: {
-    name: 'GP_PremiumSeries'
-    tier: 'GeneralPurpose'
-    family: 'PremiumSeries'
-    capacity: cores
-    hardwareGeneration: 'Gen5'
+    name: skuName
+    tier: skuTier
+    family: skuFamily
+    capacity: skuCapacity
   }
   identity: {
     type: 'SystemAssigned'
